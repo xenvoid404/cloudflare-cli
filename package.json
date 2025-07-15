@@ -1,0 +1,23 @@
+{
+    "type": "module",
+    "name": "cf-cli",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "packageManager": "pnpm@10.12.1",
+    "dependencies": {
+        "boxen": "^8.0.1",
+        "chalk": "^5.4.1",
+        "chalk-animation": "^2.0.3",
+        "cli-table3": "^0.6.5",
+        "figlet": "^1.8.2",
+        "gradient-string": "^3.0.0",
+        "inquirer": "^12.7.0"
+    }
+}
