@@ -7,16 +7,10 @@ import gradient from 'gradient-string';
 
 import { colors } from '../utils/colors.js';
 import { pause } from '../utils/pause.js';
+import { showConfigMenu } from './config-menu.js';
 
 export const showInfo = async () => {
-    const subtitle = chalkAnimation.karaoke('\n⚡ CLOUDFLARE MANAGEMENT CLI ⚡', 2);
-
-    await new Promise(resolve => {
-        setTimeout(() => {
-            subtitle.stop();
-            resolve();
-        }, 1500);
-    });
+    console.log(chalk.hex(colors.orange)('\n⚡ CLOUDFLARE MANAGEMENT CLI ⚡'));
 
     const infoText =
         `${chalk.hex(colors.green).bold('>>')} ${chalk.hex(colors.blue)('Author:')} ${chalk.hex(colors.pink)('Xenvoid 404')}\n` +
@@ -80,13 +74,21 @@ export const showMainMenu = async () => {
         }
     ]);
 
-    const processing = chalkAnimation.radar('\nPROCESSING REQUEST');
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    processing.stop();
-
     switch (mainMenu) {
         case 'config':
-            console.log(chalk.hex(colors.yellow)('\n>> INITIALIZING CONFIGURATION MODULE...'));
+            let shouldContinue = true;
+            while (shouldContinue) {
+                console.clear();
+                await showInfo();
+                console.log('');
+                const configResult = await showConfigMenu();
+
+                if (configResult === 'back') {
+                    shouldContinue = false;
+                } else if (configResult === 'exit') {
+                    return false;
+                }
+            }
             break;
         case 'manage_dns':
             console.log(chalk.hex(colors.yellow)('>> ACCESSING DNS MANAGEMENT CONSOLE...'));
