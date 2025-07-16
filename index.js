@@ -9,7 +9,7 @@ const run = async () => {
         console.clear();
         await showInfo();
         console.log('');
-        showConfiguration();
+        await showConfiguration();
         console.log('');
 
         if (!(await showMainMenu())) break;

@@ -1,22 +1,3 @@
 {
-  "configurations": [
-    {
-      "profile_name": "akun01",
-      "email": "bodoaraimu@gmail.com",
-      "api_key": "2fd2aaa4b4f93a167dfbfa9e0fb1db461b2cd",
-      "account_id": "445a29af3607a4e968856913071d8680",
-      "zone_id": "a075a734a50981f297edc4218a83af4f",
-      "zone_name": "xontol.fun",
-      "status": false
-    },
-    {
-      "profile_name": "akun02",
-      "email": "admin@xenpanel.cloud",
-      "api_key": "2bec55d7ba2c9edfc1e890c502cd3eb8bb6a7",
-      "account_id": "dddd88dd161fe99bf8318ea9703c5fa7",
-      "zone_id": "46d3dcbfc85d8a7f7fbb9a1cf1d7382d",
-      "zone_name": "kesatu.uno",
-      "status": true
-    }
-  ]
+  "configurations": []
 }
