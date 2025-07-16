@@ -3,7 +3,6 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 import { db } from '../database/db.js';
 import { colors } from '../utils/colors.js';
-import { pause } from '../utils/pause.js';
 import { showInfo } from '../utils/show-info.js';
 import { createMenuTitle } from '../utils/base-menu.js';
 import { animationKaraoke } from '../utils/animation.js';
@@ -42,7 +41,7 @@ export const addConfiguration = async () => {
             }
         ]);
 
-        await animationKaraoke('\n>> Validating Cloudflare credentials...', 4000);
+        await animationKaraoke('\n>> Validating Cloudflare credentials...', 3000);
 
         const userResponse = await axios.get('https://api.cloudflare.com/client/v4/user', {
             headers: {
@@ -54,9 +53,11 @@ export const addConfiguration = async () => {
 
         if (!userResponse.data.success) {
             throw new Error('Invalid Cloudflare credentials. Check your Email or API Key.');
+        } else {
+            console.log(chalk.hex(colors.green)('>> Credentials is valid. continue...'));
         }
 
-        await animationKaraoke('\n>> Fetching available zones...', 3000);
+        await animationKaraoke('\n>> Fetching available zones...', 2500);
 
         const zonesResponse = await axios.get('https://api.cloudflare.com/client/v4/zones', {
             headers: {
@@ -68,6 +69,8 @@ export const addConfiguration = async () => {
 
         if (!zonesResponse.data.success || !zonesResponse.data.result.length) {
             throw new Error('No zones found for this account');
+        } else {
+            console.log(chalk.hex(colors.green)('>> Fetch successfully\n'));
         }
 
         const zones = zonesResponse.data.result.map(zone => ({
@@ -88,6 +91,26 @@ export const addConfiguration = async () => {
         await animationKaraoke('\n>> Saving configuration...', 2000);
 
         await db.read();
+
+        const isDuplicate = db.data.configurations.some(
+            config =>
+                config.profile_name === profileName ||
+                config.email === email ||
+                config.api_key === apiKey ||
+                config.account_id === accountId ||
+                config.zone_id === selectedZone.id ||
+                config.zone_name === selectedZone.name
+        );
+
+        if (isDuplicate) {
+            throw new Error('Configuration already exists!');
+        }
+
+        db.data.configurations = db.data.configurations.map(config => ({
+            ...config,
+            status: false
+        }));
+
         db.data.configurations.push({
             profile_name: profileName,
             email: email,
@@ -99,15 +122,13 @@ export const addConfiguration = async () => {
         });
         await db.write();
 
-        console.log(chalk.hex(colors.green)('Configuration saved successfully!'));
+        console.log(chalk.hex(colors.green)('Configuration saved successfully!\n'));
 
-        await pause();
         return true;
     } catch (error) {
         console.log(chalk.hex(colors.pink)('ERROR: ', error.message));
-        console.log(chalk.hex(colors.orange)('Please check your credentials and try again.'));
+        console.log();
 
-        await pause();
         return false;
     }
 };
