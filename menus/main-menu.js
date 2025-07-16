@@ -8,6 +8,7 @@ import gradient from 'gradient-string';
 import { colors } from '../utils/colors.js';
 import { pause } from '../utils/pause.js';
 import { showConfigMenu } from './config-menu.js';
+import { showManageDnsMenu } from './manage-dns-menu.js';
 
 export const showInfo = async () => {
     console.log(chalk.hex(colors.orange)('\n⚡ CLOUDFLARE MANAGEMENT CLI ⚡'));
@@ -74,9 +75,9 @@ export const showMainMenu = async () => {
         }
     ]);
 
+    let shouldContinue = true;
     switch (mainMenu) {
         case 'config':
-            let shouldContinue = true;
             while (shouldContinue) {
                 console.clear();
                 await showInfo();
@@ -91,7 +92,18 @@ export const showMainMenu = async () => {
             }
             break;
         case 'manage_dns':
-            console.log(chalk.hex(colors.yellow)('>> ACCESSING DNS MANAGEMENT CONSOLE...'));
+            while (shouldContinue) {
+                console.clear();
+                await showInfo();
+                console.log('');
+                const result = await showManageDnsMenu();
+
+                if (result === 'back') {
+                    shouldContinue = false;
+                } else if (result === 'exit') {
+                    return false;
+                }
+            }
             break;
         case 'manage_workers':
             console.log(chalk.hex(colors.yellow)('\n>> CONNECTING TO WORKERS API...'));
