@@ -1,61 +1,52 @@
-import boxen from 'boxen';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
-import chalkAnimation from 'chalk-animation';
-
+import { createMenuTitle, createMenuList, createMenuSeparator, handleExit } from '../utils/base-menu.js';
 import { colors } from '../utils/colors.js';
 import { pause } from '../utils/pause.js';
 
+const CONFIG_MENU_OPTIONS = [
+    createMenuSeparator('Configuration Options'),
+    { name: 'List Profiles', value: 'list_profiles' },
+    { name: 'Add Configuration', value: 'add_configuration' },
+    { name: 'Delete Configuration', value: 'delete_configuration' },
+    { name: 'Change Profile', value: 'change_profile' },
+    { name: 'Change Zone', value: 'change_zone' },
+    createMenuSeparator('Navigation'),
+    { name: 'Back', value: 'back' },
+    { name: 'Exit', value: 'exit' }
+];
+
+const CONFIG_ACTIONS = {
+    list_profiles: 'LIST PROFILES CONFIGURATION...',
+    add_configuration: 'ADDING CONFIGURATION',
+    delete_configuration: 'DELETING CONFIGURATION...',
+    change_profile: 'CHANGING PROFILE...',
+    change_zone: 'CHANGING ZONE FROM YOUR ACTIVE CONFIGURATION...'
+};
+
 export const showConfigMenu = async () => {
-    const box = boxen(chalk.hex(colors.purple)('CONFIGURATION MENU'), {
-        borderColors: colors.purple,
-        width: 53
-    });
-    console.log(box);
+    console.log(createMenuTitle('CONFIGURATION MENU'));
 
-    const { configMenu } = await inquirer.prompt([
-        {
-            type: 'rawlist',
-            name: 'configMenu',
-            message: chalk.cyan('Chose option (input number):'),
-            choices: [
-                { name: chalk.hex(colors.green)('LIST PROFILES'), value: 'list_profile' },
-                { name: chalk.hex(colors.green)('ADD CONFIGURATION'), value: 'add_configuration' },
-                { name: chalk.hex(colors.green)('DELETE CONFIGURATION'), value: 'delete_configuration' },
-                { name: chalk.hex(colors.green)('CHANGE PROFILE'), value: 'change_profile' },
-                { name: chalk.hex(colors.green)('CHANGE ZONE'), value: 'change_zone' },
-                { name: chalk.cyan('BACK'), value: 'back' },
-                { name: chalk.hex(colors.pink)('EXIT'), value: 'exit' }
-            ],
-            pageSize: 8
-        }
-    ]);
+    const { selectedOption } = await createMenuList(
+        'Chose option (input number):',
+        CONFIG_MENU_OPTIONS.map(option => {
+            if (option instanceof inquirer.Separator) return option;
+            return {
+                ...option,
+                name:
+                    option.value === 'back'
+                        ? chalk.cyan(option.name)
+                        : option.value === 'exit'
+                        ? chalk.hex(colors.pink)(option.name)
+                        : chalk.hex(colors.green)(option.name)
+            };
+        })
+    );
 
-    switch (configMenu) {
-        case 'list_profile':
-            console.log(chalk.hex(colors.yellow)('\n>> LIST PROFILES CONFIGURATION...'));
-            break;
-        case 'add_configuration':
-            console.log(chalk.hex(colors.yellow)('\n>> ADDING CONFIGURATION...'));
-            break;
-        case 'delete_configuration':
-            console.log(chalk.hex(colors.yellow)('\n>> DELETING CONFIGURATION...'));
-            break;
-        case 'change_profile':
-            console.log(chalk.hex(colors.yellow)('\n>> CHANGE PROFILE CONFIGURATION...'));
-            break;
-        case 'change_zone':
-            console.log(chalk.hex(colors.yellow)('\n>> CHANGE ZONE FROM YOUR ACTIVE PROFILE...'));
-            break;
-        case 'back':
-            return 'back';
-        case 'exit':
-            const goodbye = chalkAnimation.neon('\nTERMINATING SESSION... GOODBYE!');
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            goodbye.stop();
-            return 'exit';
-    }
+    if (selectedOption === 'back') return 'back';
+    if (selectedOption === 'exit') return await handleExit();
 
+    console.log(chalk.hex(colors.yellow)(`\n>> ${CONFIG_ACTIONS[selectedOption]}...`));
     await pause();
     return true;
 };

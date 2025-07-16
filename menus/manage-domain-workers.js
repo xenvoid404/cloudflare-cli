@@ -1,74 +1,60 @@
-import boxen from 'boxen';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import chalkAnimation from 'chalk-animation';
-
+import { createMenuTitle, createMenuList, createMenuSeparator, handleExit } from '../utils/base-menu.js';
 import { colors } from '../utils/colors.js';
 import { pause } from '../utils/pause.js';
 
+const DOMAIN_WORKERS_OPTIONS = [
+    createMenuSeparator('Add Domain Workers'),
+    { name: 'Add Single Domain Worker', value: 'add_single_domain_worker' },
+    { name: 'Add Multi Domain Worker From File', value: 'add_multi_domain_worker_from_file' },
+    createMenuSeparator('Edit Domain Worker'),
+    { name: 'Edit Single Domain Worker', value: 'edit_single_domain_worker' },
+    { name: 'Edit Multi Domain Worker From File', value: 'edit_multi_domain_worker_from_file' },
+    createMenuSeparator('Edit Domain Worker'),
+    { name: 'Delete Single Domain Worker', value: 'delete_single_domain_worker' },
+    { name: 'Delete Multi Domain Worker From File', value: 'delete_multi_domain_worker_from_file' },
+    createMenuSeparator('Get Domain Worker'),
+    { name: 'Get and Save Domain Worker to File', value: 'get_and_save_domain_worker_to_file' },
+    createMenuSeparator('Navigation'),
+    { name: 'Back', value: 'back' },
+    { name: 'Exit', value: 'exit' }
+];
+
+const DOMAIN_WORKERS_ACTIONS = {
+    add_multi_records_from_file: 'ADDING SINGLE DOMAIN WORKER...',
+    add_multi_records_from_file: 'ADDING MULTIPLE DOMAIN WORKERS FROM FILE',
+    edit_single_domain_worker: 'EDITING SINGLE DOMAIN WORKER...',
+    edit_multi_domain_worker_from_file: 'EDITING MULTIPLE DOMAIN WORKERS FROM FILE...',
+    delete_single_domain_worker: 'DELETING SINGLE DOMAIN WORKER...',
+    delete_multi_domain_worker_from_file: 'DELETING MULTIPLE DOMAIN WORKERS FROM FILE...',
+    get_and_save_domain_worker_to_file: 'GETTING DOMAIN WORKER AND SAVE TO FILE...'
+};
+
 export const showManageDomainWorkersMenu = async () => {
-    const box = boxen(chalk.hex(colors.purple)('MANAGE DOMAIN WORKERS'), {
-        borderColors: colors.purple,
-        width: 53
-    });
-    console.log(box);
+    console.log(createMenuTitle('MANAGE DOMAIN WORKERS MENU'));
 
-    const { manageDomainWorkersMenu } = await inquirer.prompt([
-        {
-            type: 'rawlist',
-            name: 'manageDomainWorkersMenu',
-            message: chalk.cyan('Chose option (input number):'),
-            choices: [
-                new inquirer.Separator(chalk.hex(colors.orange)('=== Add Domain Workers ====')),
-                { name: chalk.hex(colors.green)('Add Single Domain Worker'), value: 'add_single_domain_worker' },
-                { name: chalk.hex(colors.green)('Add Multi Domain Worker From File'), value: 'add_multi_domain_worker_from_file' },
-                new inquirer.Separator(chalk.hex(colors.orange)('=== Edit Domain Worker ===')),
-                { name: chalk.hex(colors.green)('Edit Single Domain Worker'), value: 'edit_single_domain_worker' },
-                { name: chalk.hex(colors.green)('Edit Multi Domain Worker From File'), value: 'edit_multi_domain_worker_from_file' },
-                new inquirer.Separator(chalk.hex(colors.orange)('=== Edit Domain Worker ===')),
-                { name: chalk.hex(colors.green)('Delete Single Domain Worker'), value: 'delete_single_domain_worker' },
-                { name: chalk.hex(colors.green)('Delete Multi Domain Worker From File'), value: 'delete_multi_domain_worker_from_file' },
-                new inquirer.Separator(chalk.hex(colors.orange)('=== Get Domain Worker ===')),
-                { name: chalk.hex(colors.green)('Get and Save Domain Worker to File'), value: 'get_and_save_domain_worker_to_file' },
-                new inquirer.Separator(chalk.hex(colors.orange)('===================')),
-                { name: chalk.cyan('BACK'), value: 'back' },
-                { name: chalk.hex(colors.pink)('EXIT'), value: 'exit' }
-            ],
-            pageSize: 8
-        }
-    ]);
+    const { selectedOption } = await createMenuList(
+        'Chose option (input number):',
+        DOMAIN_WORKERS_OPTIONS.map(option => {
+            if (option instanceof inquirer.Separator) return option;
+            return {
+                ...option,
+                name:
+                    option.value === 'back'
+                        ? chalk.cyan(option.name)
+                        : option.value === 'exit'
+                        ? chalk.hex(colors.pink)(option.name)
+                        : chalk.hex(colors.green)(option.name)
+            };
+        })
+    );
 
-    switch (manageDomainWorkersMenu) {
-        case 'add_single_domain_worker':
-            console.log(chalk.hex(colors.yellow)('\n>> ADDING SINGLE DOMAIN WORKERS...'));
-            break;
-        case 'add_multi_domain_worker_from_file':
-            console.log(chalk.hex(colors.yellow)('\n>> ADDING DOMAIN WORKERS FROM FILE...'));
-            break;
-        case 'edit_single_domain_worker':
-            console.log(chalk.hex(colors.yellow)('\n>> EDITING DOMAIN WORKERS RECORDS...'));
-            break;
-        case 'edit_multi_domain_worker_from_file':
-            console.log(chalk.hex(colors.yellow)('\n>> EDITING MULTI DOMAIN WORKERS FROM FILE...'));
-            break;
-        case 'delete_single_domain_worker':
-            console.log(chalk.hex(colors.yellow)('\n>> DELETING SINGLE DOMAIN WORKERS...'));
-            break;
-        case 'delete_multi_domain_worker_from_file':
-            console.log(chalk.hex(colors.yellow)('\n>> DELETING MULTI DOMAIN WORKERS FROM FILE...'));
-            break;
-        case 'get_and_save_domain_worker_to_file':
-            console.log(chalk.hex(colors.yellow)('\n>> GETTING DOMAIN WORKERS AND SAVE TO FILE...'));
-            break;
-        case 'back':
-            return 'back';
-        case 'exit':
-            const goodbye = chalkAnimation.neon('\nTERMINATING SESSION... GOODBYE!');
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            goodbye.stop();
-            return 'exit';
-    }
+    if (selectedOption === 'back') return 'back';
+    if (selectedOption === 'exit') return await handleExit();
 
+    console.log(chalk.hex(colors.yellow)(`\n>> ${DOMAIN_WORKERS_ACTIONS[selectedOption]}...`));
     await pause();
     return true;
 };
