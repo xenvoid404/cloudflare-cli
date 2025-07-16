@@ -9,6 +9,7 @@ import { colors } from '../utils/colors.js';
 import { pause } from '../utils/pause.js';
 import { showConfigMenu } from './config-menu.js';
 import { showManageDnsMenu } from './manage-dns-menu.js';
+import { showManageDomainWorkersMenu } from './manage-domain-workers.js';
 
 export const showInfo = async () => {
     console.log(chalk.hex(colors.orange)('\n⚡ CLOUDFLARE MANAGEMENT CLI ⚡'));
@@ -66,9 +67,9 @@ export const showMainMenu = async () => {
             name: 'mainMenu',
             message: chalk.cyan('Chose action (Input number):'),
             choices: [
-                { name: chalk.hex(colors.green)('CONFIGURATION'), value: 'config' },
-                { name: chalk.hex(colors.green)('MANAGE DNS'), value: 'manage_dns' },
-                { name: chalk.hex(colors.green)('MANAGE WORKERS'), value: 'manage_workers' },
+                { name: chalk.hex(colors.green)('Configuration'), value: 'config' },
+                { name: chalk.hex(colors.green)('Manage DNS'), value: 'manage_dns' },
+                { name: chalk.hex(colors.green)('Manage Domain Workers'), value: 'manage_domain_workers' },
                 { name: chalk.hex(colors.pink)('EXIT'), value: 'exit' }
             ],
             pageSize: 8
@@ -105,8 +106,19 @@ export const showMainMenu = async () => {
                 }
             }
             break;
-        case 'manage_workers':
-            console.log(chalk.hex(colors.yellow)('\n>> CONNECTING TO WORKERS API...'));
+        case 'manage_domain_workers':
+            while (shouldContinue) {
+                console.clear();
+                await showInfo();
+                console.log('');
+                const result = await showManageDomainWorkersMenu();
+
+                if (result === 'back') {
+                    shouldContinue = false;
+                } else if (result === 'exit') {
+                    return false;
+                }
+            }
             break;
         case 'exit':
             const goodbye = chalkAnimation.neon('\nTERMINATING SESSION... GOODBYE!');
