@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import inquirer from 'inquirer';
+import { addConfiguration } from '../configuration/add-configuration.js';
 import { createMenuTitle, createMenuList, createMenuSeparator, handleExit } from '../utils/base-menu.js';
 import { colors } from '../utils/colors.js';
 import { pause } from '../utils/pause.js';
@@ -18,7 +19,7 @@ const CONFIG_MENU_OPTIONS = [
 
 const CONFIG_ACTIONS = {
     list_profiles: 'LIST PROFILES CONFIGURATION...',
-    add_configuration: 'ADDING CONFIGURATION',
+    add_configuration: addConfiguration,
     delete_configuration: 'DELETING CONFIGURATION...',
     change_profile: 'CHANGING PROFILE...',
     change_zone: 'CHANGING ZONE FROM YOUR ACTIVE CONFIGURATION...'
@@ -46,7 +47,11 @@ export const showConfigMenu = async () => {
     if (selectedOption === 'back') return 'back';
     if (selectedOption === 'exit') return await handleExit();
 
-    console.log(chalk.hex(colors.yellow)(`\n>> ${CONFIG_ACTIONS[selectedOption]}...`));
+    if (typeof CONFIG_ACTIONS[selectedOption] === 'function') {
+        await CONFIG_ACTIONS[selectedOption]();
+    } else {
+        console.log(chalk.hex(colors.yellow)(`\n>> ${CONFIG_ACTIONS[selectedOption]}...`));
+    }
     await pause();
     return true;
 };
